@@ -103,3 +103,43 @@ insert into Contrato values (00000003, 13125734, 12345670, 'Satelital', 'Efectiv
 insert into Contrato values (00000004, 13125734, 12345679, 'Satelital', 'Credito', '10/10/20');
 insert into Contrato values (00000005, 13125769, 12345679, 'Satelital', 'Efectivo', '9/10/20');
 insert into Contrato values (00000006, 13125769, 12345671, 'Fibra', 'Efectivo', '9/10/20');
+
+
+
+/* Consulta 1 */
+SELECT 
+
+  cliente.id_cliente AS cedula_cliente,
+  cliente.nombre_cliente AS nombre_cliente,
+  contrato.num_contrato AS código_contrato 
+FROM 
+
+  public.contrato
+  INNER JOIN public.cliente ON cliente.id_cliente = contrato.id_cliente
+WHERE
+ cliente.id_cliente ='13125734'
+ 
+/* Consulta 2 */
+ SELECT 
+  distribuidor.id_distribuidor AS cedula_distribuidor, 
+  distribuidor.nombre_distribuidor AS nombre_distribuidor,
+  departamento.nombre_departamento AS Departamento_asignado
+  
+FROM 
+  public.distribuidor
+  INNER JOIN public.departamento ON departamento.id_departamento = distribuidor.departamento_distribuidor
+  
+  
+/* Consulta 3 */
+  SELECT 
+  distribuidor.nombre_distribuidor AS nombre_distribuidor,
+  cliente.id_cliente AS cedula_cliente, 
+  cliente.nombre_cliente AS nombre_cliente,
+  contrato.num_contrato AS código_contrato
+FROM 
+  public.contrato 
+  INNER JOIN public.cliente ON cliente.id_cliente = contrato.id_cliente
+  INNER JOIN public.distribuidor ON distribuidor.id_distribuidor = contrato.id_distribuidor
+
+WHERE 
+  distribuidor.nombre_distribuidor = 'Belen Catagua'
