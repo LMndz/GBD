@@ -1,0 +1,85 @@
+/*trigger que no permita el ingresar de mas de 2 contrato con el el mismo cliente */
+
+CREATE OR REPLACE FUNCTION maxi() RETURNS TRIGGER AS $maxi$
+  DECLARE
+	acum int;
+	maximo int = 2;	
+  BEGIN
+ 	select count(id_cliente) into acum from contrato where id_cliente = new.id_cliente;
+	if(acum >= maximo) then
+		RAISE EXCEPTION 'No se permite mas de 2 contratos';
+	END if;
+   RETURN new;
+  END;
+$maxi$ 
+LANGUAGE plpgsql;
+
+--Trigger
+CREATE TRIGGER maxi BEFORE INSERT
+    ON contrato FOR EACH ROW 
+    EXECUTE PROCEDURE maxi();
+
+
+--Inserción del nuevo contrato
+insert into Contrato values (00000007, 13125769, 12345671, 1, '9/10/20');
+
+
+
+/*-------------------------------------------------------------------------------------------------*/
+
+--Cursor que muestre al tecnico quien ha hecho mas servicios tecnico.
+do $$
+DECLARE
+    suma decimal = 0;
+    cantidad decimal;
+    recorrido record;
+    -- Declaración del cursor
+    sum_num CURSOR FOR SELECT * FROM tecnico, servicio_tecnico
+    where 
+	tecnico.id_solicitud = servicio_tecnico.id_solicitud;
+BEGIN
+   -- Procedimiento
+   FOR cantidad IN sum_num 
+   LOOP
+	suma = suma + count(cantidad.descripcion);
+   END LOOP;
+   open sum_num;
+   fetch sum_num into recorrido;
+   raise notice 'Nombre: %', recorrido.nombre; 
+   
+END $$ 
+LANGUAGE 'plpgsql'
+
+/*-------------------------------------------------------------------------------------------------*/
+
+/*Prodecimiento almacenado que muestre el numero de contrato hechos por la empresa*/
+CREATE OR REPLACE FUNCTION num_contrato()
+  RETURNS int AS
+$BODY$DECLARE tota int;
+
+BEGIN
+SELECT 
+  count(num_contrato) INTO tota 
+FROM 
+  contrato;
+RETURN tota;
+END;$BODY$
+  LANGUAGE plpgsql
+
+
+ select num_contrato()
+
+
+/*-------------------------------------------------------------------------------------------------*/
+
+--Mostrar en un Ireport el reporte de cual es la forma de pago mas preferene de los usuarios.
+
+SELECT 
+  pago.tipo_de_pago, 
+  detalle_contrato.num_contrato, 
+  detalle_contrato.descripcion
+FROM 
+  public.pago, 
+  public.detalle_contrato
+WHERE 
+  detalle_contrato.id_pago = pago.id_pago;
